@@ -193,6 +193,12 @@ func HasAnnotation(obj ObjectMeta, ann string) bool {
 	return found
 }
 
+// HasLabel returns a bool if passed in label exists
+func HasLabel(obj ObjectMeta, label string) bool {
+	_, found := obj.Labels[label]
+	return found
+}
+
 // SetMetaDataAnnotation sets the annotation and value
 func SetMetaDataAnnotation(obj *ObjectMeta, ann string, value string) {
 	if obj.Annotations == nil {

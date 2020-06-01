@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/gofuzz"
+	fuzz "github.com/google/gofuzz"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/diff"
@@ -193,5 +193,51 @@ func TestResetObjectMetaForStatus(t *testing.T) {
 
 	if !reflect.DeepEqual(meta, existingMeta) {
 		t.Error(diff.ObjectDiff(meta, existingMeta))
+	}
+}
+
+func TestHasLabel(t *testing.T) {
+	type args struct {
+		obj   ObjectMeta
+		label string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Label does not exist",
+			args: args{
+				obj: ObjectMeta{
+					Labels: map[string]string{
+						"here": "here",
+						"ping": "pong",
+					},
+				},
+				label: "notHere",
+			},
+			want: false,
+		},
+		{
+			name: "Label does exist",
+			args: args{
+				obj: ObjectMeta{
+					Labels: map[string]string{
+						"here": "here",
+						"ping": "pong",
+					},
+				},
+				label: "here",
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := HasLabel(tt.args.obj, tt.args.label); got != tt.want {
+				t.Errorf("HasLabel() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
